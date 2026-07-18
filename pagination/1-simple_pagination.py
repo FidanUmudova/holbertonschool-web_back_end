@@ -55,7 +55,7 @@ class Server:
 
         Args:
             page (int): The 1-indexed page number. Must be an integer > 0.
-            page_size (int): The number of rows per page. Must be an integer > 0.
+            page_size (int): The number of rows per page. Must be > 0.
 
         Returns:
             List[List]: A list of rows representing the page. Returns an
