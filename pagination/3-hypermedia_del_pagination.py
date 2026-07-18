@@ -72,7 +72,8 @@ class Server:
 
         # Find page_size elements.
         # Skip deleted index slots along the way.
-        while len(data) < page_size and current_index < len(indexed_data):
+        while (len(data) < page_size and
+               current_index < len(indexed_data)):
             item = indexed_data.get(current_index)
             if item is not None:
                 data.append(item)
