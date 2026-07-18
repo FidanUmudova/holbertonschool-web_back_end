@@ -52,8 +52,8 @@ class Server:
         Retrieves a page of data from a given index resilient to deletions.
 
         Args:
-            index (int): The starting absolute index of the page. Defaults to 0.
-            page_size (int): The target item amount per page. Defaults to 10.
+            index (int): The starting absolute index of the page.
+            page_size (int): The target item amount per page.
 
         Returns:
             Dict[str, Any]: A dictionary containing index, next_index,
