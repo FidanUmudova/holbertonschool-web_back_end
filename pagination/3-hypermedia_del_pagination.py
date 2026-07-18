@@ -70,7 +70,8 @@ class Server:
         data = []
         current_index = index
 
-        # Find page_size elements, skipping deleted index slots along the way
+        # Find page_size elements.
+        # Skip deleted index slots along the way.
         while len(data) < page_size and current_index < len(indexed_data):
             item = indexed_data.get(current_index)
             if item is not None:
