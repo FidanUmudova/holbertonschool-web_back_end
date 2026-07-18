@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-This module provides a Server class to paginate popular baby names data.
+This module provides a Server class designed to paginate popular baby names.
+It extracts rows from a CSV dataset based on requested pages and sizes.
 """
 import csv
 import math
@@ -13,10 +14,10 @@ def index_range(page: int, page_size: int) -> Tuple[int, int]:
 
     Args:
         page (int): The 1-indexed page number.
-        page_size (int): The number of items per page.
+        page_size (int): The total number of items per page.
 
     Returns:
-        Tuple[int, int]: A tuple containing the start index and end index.
+        Tuple[int, int]: A tuple containing the start and end indexes.
     """
     start_index = (page - 1) * page_size
     end_index = start_index + page_size
@@ -29,10 +30,16 @@ class Server:
     DATA_FILE = "Popular_Baby_Names.csv"
 
     def __init__(self):
+        """Initializes the server instance and sets the dataset cache to None.
+        """
         self.__dataset = None
 
     def dataset(self) -> List[List]:
-        """Cached dataset
+        """Cached dataset retrieval method.
+
+        Returns:
+            List[List]: The loaded dataset containing lists of row elements,
+            excluding the header row.
         """
         if self.__dataset is None:
             with open(self.DATA_FILE) as f:
@@ -44,15 +51,15 @@ class Server:
 
     def get_page(self, page: int = 1, page_size: int = 10) -> List[List]:
         """
-        Finds the appropriate page of data from the dataset.
+        Finds and returns the appropriate page of rows from the dataset.
 
         Args:
-            page (int): The 1-indexed page number. Must be > 0.
-            page_size (int): The number of items per page. Must be > 0.
+            page (int): The 1-indexed page number. Must be an integer > 0.
+            page_size (int): The number of rows per page. Must be an integer > 0.
 
         Returns:
-            List[List]: A list of rows belonging to the requested page,
-                        or an empty list if out of range.
+            List[List]: A list of rows representing the page. Returns an
+            empty list if the calculated indexes are out of dataset bounds.
         """
         assert isinstance(page, int) and page > 0
         assert isinstance(page_size, int) and page_size > 0
