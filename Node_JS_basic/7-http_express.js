@@ -1,25 +1,53 @@
 const express = require('express');
-const countStudents = require('./3-read_file_async');
+const fs = require('fs');
 
 const app = express();
 const database = process.argv[2];
 
 app.get('/', (req, res) => {
-res.set('Content-Type', 'text/plain');
-res.status(200).send('Hello Holberton School!');
+res.status(200).type('text/plain').send('Hello Holberton School!');
 });
 
 app.get('/students', (req, res) => {
-res.set('Content-Type', 'text/plain');
+fs.readFile(database, 'utf-8', (err, data) => {
+if (err) {
+res.status(500).type('text/plain').send('Cannot load the database');
+return;
+}
 
-let result = 'This is the list of our students\n';
+```
+const students = data
+  .trim()
+  .split('\n')
+  .slice(1);
 
-countStudents(database)
-.then(() => {
-res.status(200).send(result);
-})
-.catch(() => {
-res.status(500).send('Cannot load the database');
+const fields = {};
+
+students.forEach((student) => {
+  const studentInfo = student.split(',');
+  const firstName = studentInfo[0];
+  const field = studentInfo[3];
+
+  if (!fields[field]) {
+    fields[field] = [];
+  }
+
+  fields[field].push(firstName);
+});
+
+const result = ['This is the list of our students'];
+
+result.push(`Number of students: ${students.length}`);
+
+Object.keys(fields).forEach((field) => {
+  result.push(
+    `Number of students in ${field}: ${fields[field].length}. List: ${fields[field].join(', ')}`,
+  );
+});
+
+res.status(200).type('text/plain').send(result.join('\n'));
+```
+
 });
 });
 
