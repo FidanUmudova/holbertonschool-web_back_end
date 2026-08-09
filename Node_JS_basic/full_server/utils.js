@@ -20,7 +20,7 @@ const readDatabase = (filePath) => {
       const fields = {};
 
       students.forEach((student) => {
-        const studentInfo = student.split(',');
+        const studentInfo = student.split(',').map((item) => item.trim());
         const firstName = studentInfo[0];
         const field = studentInfo[studentInfo.length - 1];
 
