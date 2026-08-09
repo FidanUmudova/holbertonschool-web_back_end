@@ -8,8 +8,7 @@ class StudentsController {
       const studentsByField = await readDatabase(dbFile);
       let responseText = 'This is the list of our students';
 
-      // Sort fields alphabetically (case-insensitive)
-      const sortedFields = Object.keys(studentsByField).sort((a, b) => 
+      const sortedFields = Object.keys(studentsByField).sort((a, b) =>
         a.localeCompare(b, 'en', { sensitivity: 'accent' })
       );
 
