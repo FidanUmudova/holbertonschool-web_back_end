@@ -4,7 +4,6 @@ const fs = require('fs');
 const app = express();
 const port = 1245;
 
-// 3-read_file_async.js faylındakı məntiqlə eyni işləyən köməkçi funksiya
 function countStudents(path) {
   return new Promise((resolve, reject) => {
     fs.readFile(path, 'utf8', (err, data) => {
@@ -13,7 +12,6 @@ function countStudents(path) {
         return;
       }
 
-      // Boş sətirləri və sonluqları təmizləyirik
       const lines = data.split('\n');
       const validLines = lines.filter((line) => line.trim() !== '');
 
@@ -51,12 +49,10 @@ function countStudents(path) {
   });
 }
 
-// Route for root /
 app.get('/', (req, res) => {
   res.send('Hello Holberton School!');
 });
 
-// Route for /students
 app.get('/students', async (req, res) => {
   const dbFile = process.argv[2];
   const responseText = 'This is the list of our students';
