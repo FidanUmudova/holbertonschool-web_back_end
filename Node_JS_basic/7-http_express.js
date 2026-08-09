@@ -4,60 +4,75 @@ const fs = require('fs');
 const app = express();
 const port = 1245;
 
-const countStudents = (dataPath) => new Promise((resolve, reject) => {
-fs.readFile(dataPath, 'utf-8', (err, data) => {
-if (err) {
-reject(new Error('Cannot load the database'));
-return;
-}
+// Helper function to read and parse the database asynchronously
+const countStudents = (dataPath) => {
+  return new Promise((resolve, reject) => {
+    fs.readFile(dataPath, 'utf-8', (err, data) => {
+      if (err) {
+        reject(new Error('Cannot load the database'));
+        return;
+      }
 
-```
-const lines = data
-  .split('\n')
-  .filter((line) => line.trim() !== '');
+      const lines = data.split('\n');
+      // Filter out empty lines or lines with only whitespace
+      const validLines = lines.filter((line) => line.trim() !== '');
 
-const studentRecords = lines.slice(1);
+      if (validLines.length <= 1) {
+        resolve('Number of students: 0');
+        return;
+      }
 
-let output = `Number of students: ${studentRecords.length}`;
-const fields = {};
+      // Header is the first line
+      const studentRows = validLines.slice(1);
+      const totalStudents = studentRows.length;
 
-studentRecords.forEach((line) => {
-  const parts = line.split(',');
-  const firstname = parts[0].trim();
-  const field = parts[3].trim();
+      const fields = {};
+      studentRows.forEach((row) => {
+        const studentRecord = row.split(',');
+        const firstName = studentRecord[0];
+        const field = studentRecord[3];
 
-  if (!fields[field]) {
-    fields[field] = [];
-  }
+        if (firstName && field) {
+          if (!fields[field]) {
+            fields[field] = [];
+          }
+          fields[field].push(firstName);
+        }
+      });
 
-  fields[field].push(firstname);
-});
+      let output = `Number of students: ${totalStudents}`;
+      for (const [field, students] of Object.entries(fields)) {
+        output += `\nNumber of students in ${field}: ${students.length}. List: ${students.join(', ')}`;
+      }
 
-for (const [field, names] of Object.entries(fields)) {
-  output += `\nNumber of students in ${field}: ${names.length}. List: ${names.join(', ')}`;
-}
+      resolve(output);
+    });
+  });
+};
 
-resolve(output);
-```
-
-});
-});
-
+// Route for root /
 app.get('/', (req, res) => {
-res.type('text/plain').send('Hello Holberton School!');
+  res.send('Hello Holberton School!');
 });
 
+// Route for /students
 app.get('/students', async (req, res) => {
-const databaseFile = process.argv[2];
+  const dbFile = process.argv[2];
+  
+  let responseText = 'This is the list of our students';
 
-try {
-const studentData = await countStudents(databaseFile);
-res.type('text/plain').send(`This is the list of our students\n${studentData}`);
-} catch (error) {
-res.status(500).type('text/plain').send(error.message);
-}
+  try {
+    const studentData = await countStudents(dbFile);
+    res.send(`${responseText}\n${studentData}`);
+  } catch (error) {
+    res.send(`${responseText}\nCannot load the database`);
+  }
 });
 
-app.listen(port);
+// Start listening on port 1245
+app.listen(port, () => {
+  console.log(`Server listening on port ${port}`);
+});
 
+// Export the app variable
 module.exports = app;
