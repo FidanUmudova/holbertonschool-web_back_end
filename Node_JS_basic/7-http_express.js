@@ -2,55 +2,62 @@ const express = require('express');
 const fs = require('fs');
 
 const app = express();
-const database = process.argv[2];
+const port = 1245;
 
-app.get('/', (req, res) => {
-res.status(200).type('text/plain').send('Hello Holberton School!');
-});
-
-app.get('/students', (req, res) => {
-fs.readFile(database, 'utf-8', (err, data) => {
+const countStudents = (dataPath) => new Promise((resolve, reject) => {
+fs.readFile(dataPath, 'utf-8', (err, data) => {
 if (err) {
-res.status(500).type('text/plain').send('Cannot load the database');
+reject(new Error('Cannot load the database'));
 return;
 }
 
 ```
-const students = data
-  .trim()
+const lines = data
   .split('\n')
-  .slice(1);
+  .filter((line) => line.trim() !== '');
 
+const studentRecords = lines.slice(1);
+
+let output = `Number of students: ${studentRecords.length}`;
 const fields = {};
 
-students.forEach((student) => {
-  const studentInfo = student.split(',');
-  const firstName = studentInfo[0];
-  const field = studentInfo[3];
+studentRecords.forEach((line) => {
+  const parts = line.split(',');
+  const firstname = parts[0].trim();
+  const field = parts[3].trim();
 
   if (!fields[field]) {
     fields[field] = [];
   }
 
-  fields[field].push(firstName);
+  fields[field].push(firstname);
 });
 
-const result = ['This is the list of our students'];
+for (const [field, names] of Object.entries(fields)) {
+  output += `\nNumber of students in ${field}: ${names.length}. List: ${names.join(', ')}`;
+}
 
-result.push(`Number of students: ${students.length}`);
-
-Object.keys(fields).forEach((field) => {
-  result.push(
-    `Number of students in ${field}: ${fields[field].length}. List: ${fields[field].join(', ')}`,
-  );
-});
-
-res.status(200).type('text/plain').send(result.join('\n'));
+resolve(output);
 ```
 
 });
 });
 
-app.listen(1245);
+app.get('/', (req, res) => {
+res.type('text/plain').send('Hello Holberton School!');
+});
+
+app.get('/students', async (req, res) => {
+const databaseFile = process.argv[2];
+
+try {
+const studentData = await countStudents(databaseFile);
+res.type('text/plain').send(`This is the list of our students\n${studentData}`);
+} catch (error) {
+res.status(500).type('text/plain').send(error.message);
+}
+});
+
+app.listen(port);
 
 module.exports = app;
