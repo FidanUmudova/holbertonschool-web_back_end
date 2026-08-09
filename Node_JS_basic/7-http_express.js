@@ -4,17 +4,17 @@ const fs = require('fs');
 const app = express();
 const port = 1245;
 
-// Helper function to read and parse the database asynchronously
-const countStudents = (dataPath) => {
+// 3-read_file_async.js faylındakı məntiqlə eyni işləyən köməkçi funksiya
+function countStudents(path) {
   return new Promise((resolve, reject) => {
-    fs.readFile(dataPath, 'utf-8', (err, data) => {
+    fs.readFile(path, 'utf8', (err, data) => {
       if (err) {
         reject(new Error('Cannot load the database'));
         return;
       }
 
+      // Boş sətirləri və sonluqları təmizləyirik
       const lines = data.split('\n');
-      // Filter out empty lines or lines with only whitespace
       const validLines = lines.filter((line) => line.trim() !== '');
 
       if (validLines.length <= 1) {
@@ -22,15 +22,15 @@ const countStudents = (dataPath) => {
         return;
       }
 
-      // Header is the first line
-      const studentRows = validLines.slice(1);
-      const totalStudents = studentRows.length;
+      const students = validLines.slice(1);
+      const totalMsg = `Number of students: ${students.length}`;
 
       const fields = {};
-      studentRows.forEach((row) => {
-        const studentRecord = row.split(',');
-        const firstName = studentRecord[0];
-        const field = studentRecord[3];
+
+      students.forEach((student) => {
+        const studentInfo = student.split(',');
+        const firstName = studentInfo[0];
+        const field = studentInfo[studentInfo.length - 1];
 
         if (firstName && field) {
           if (!fields[field]) {
@@ -40,15 +40,16 @@ const countStudents = (dataPath) => {
         }
       });
 
-      let output = `Number of students: ${totalStudents}`;
-      for (const [field, students] of Object.entries(fields)) {
-        output += `\nNumber of students in ${field}: ${students.length}. List: ${students.join(', ')}`;
-      }
+      let output = [totalMsg];
+      Object.keys(fields).forEach((field) => {
+        const fieldMsg = `Number of students in ${field}: ${fields[field].length}. List: ${fields[field].join(', ')}`;
+        output.push(fieldMsg);
+      });
 
-      resolve(output);
+      resolve(output.join('\n'));
     });
   });
-};
+}
 
 // Route for root /
 app.get('/', (req, res) => {
@@ -58,8 +59,7 @@ app.get('/', (req, res) => {
 // Route for /students
 app.get('/students', async (req, res) => {
   const dbFile = process.argv[2];
-  
-  let responseText = 'This is the list of our students';
+  const responseText = 'This is the list of our students';
 
   try {
     const studentData = await countStudents(dbFile);
@@ -70,9 +70,6 @@ app.get('/students', async (req, res) => {
 });
 
 // Start listening on port 1245
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
-});
+app.listen(port);
 
-// Export the app variable
 module.exports = app;
