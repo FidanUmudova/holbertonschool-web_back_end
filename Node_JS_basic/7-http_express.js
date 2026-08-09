@@ -55,17 +55,15 @@ app.get('/', (req, res) => {
 
 app.get('/students', async (req, res) => {
   const dbFile = process.argv[2];
-  const responseText = 'This is the list of our students';
-
+  
   try {
     const studentData = await countStudents(dbFile);
-    res.send(`${responseText}\n${studentData}`);
+    res.send(`This is the list of our students\n${studentData}`);
   } catch (error) {
-    res.send(`${responseText}\nCannot load the database`);
+    res.send('This is the list of our students\nCannot load the database');
   }
 });
 
-// Start listening on port 1245
 app.listen(port);
 
 module.exports = app;
