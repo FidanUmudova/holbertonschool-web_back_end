@@ -10,7 +10,35 @@ function countStudents(path) {
       if (err) {
         reject(new Error('Cannot load the database'));
         return;
-      }
+      }const express = require('express');
+const countStudents = require('./3-read_file_async');
+
+const app = express();
+const port = 1245;
+
+// Route for root /
+app.get('/', (req, res) => {
+  res.send('Hello Holberton School!');
+});
+
+// Route for /students
+app.get('/students', async (req, res) => {
+  const dbFile = process.argv[2];
+  const responseText = 'This is the list of our students';
+
+  try {
+    const studentData = await countStudents(dbFile);
+    res.send(`${responseText}\n${studentData}`);
+  } catch (error) {
+    res.send(`${responseText}\nCannot load the database`);
+  }
+});
+
+// Start listening on port 1245
+app.listen(port);
+
+// Export the app variable
+module.exports = app;
 
       const lines = data.split('\n');
       const validLines = lines.filter((line) => line.trim() !== '');
